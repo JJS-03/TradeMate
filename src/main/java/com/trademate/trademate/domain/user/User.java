@@ -1,6 +1,5 @@
 package com.trademate.trademate.domain.user;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
