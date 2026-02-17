@@ -3,6 +3,7 @@ package com.trademate.trademate.user.service;
 import com.trademate.trademate.common.exception.DuplicateEmailException;
 import com.trademate.trademate.domain.user.User;
 import com.trademate.trademate.domain.user.UserRepository;
+import com.trademate.trademate.user.dto.MeResponse;
 import com.trademate.trademate.user.dto.SignUpRequest;
 import com.trademate.trademate.user.dto.SignUpResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +39,13 @@ public class UserService {
 
         return new SignUpResponse(saved.getId(), saved.getEmail(), saved.getNickname());
 
+    }
+
+    @Transactional(readOnly = true)
+    public MeResponse getMe(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return new MeResponse(user.getId(), user.getEmail(), user.getNickname());
     }
 }
