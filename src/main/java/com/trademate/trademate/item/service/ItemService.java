@@ -50,4 +50,15 @@ public class ItemService {
 
         return ItemResponse.from(item);
     }
+
+    public void deleteItem(Long itemId, Long userId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다."));
+
+        if (!item.getSeller().getId().equals(userId)) {
+            throw new ForbiddenException("본인이 등록한 상품만 삭제할 수 있습니다.");
+        }
+
+        itemRepository.delete(item);
+    }
 }

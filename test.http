@@ -5,10 +5,10 @@
 @otherEmail = buyer1@test.com
 @otherPassword = 12345678
 # 로그인 후 발급된 token(eyJ...)을 아래에 붙여넣으세요. (Bearer 제외)
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxNDg5MzAwLCJleHAiOjE3NzE0OTI5MDB9.ky9IKZjFiqxGSdtdEKglp_1rRvAq1h16vesuVMjFoE1ZtJ2vTzjUDa-XA6Y2nWai
-@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzE0ODkzNDgsImV4cCI6MTc3MTQ5Mjk0OH0.fXblkBGcwId1xeyPLn_nkhRgiDH234MpvfUfhnIyiA0B4KkEXGRz0AwwlvKbR_8p
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxNDkxMjA0LCJleHAiOjE3NzE0OTQ4MDR9._wurz3Dsm6UcQ4q5ago9bj8BYBr460933Uuo2D-tY_d5nKsr8ecY8icEwgvTPlrU
+@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzE0OTEyMzQsImV4cCI6MTc3MTQ5NDgzNH0.rJycR2oSXmDjzGJS1jgAHg_nc_RRjNUxe7uVstd6e1IHjhKPLFZFb4NMGGbrZq13
 # 반드시 seller1이 아닌 다른 계정의 토큰을 넣으세요. (같은 계정 토큰이면 7번도 200)
-@existingItemId = 30
+@existingItemId = 28
 # 5-1 응답의 id 값을 아래 existingItemId에 수동으로 넣어주세요 (미설정 시 6,7도 404)
 @notFoundItemId = 999999
 
@@ -136,3 +136,15 @@ Authorization: Bearer {{accessToken}}
   "description": "404 테스트",
   "price": 100000
 }
+
+### 9) 상품 삭제 (정상: 204)
+DELETE {{baseUrl}}/api/items/{{existingItemId}}
+Authorization: Bearer {{accessToken}}
+
+### 10) 상품 삭제 (다른 유저: 403)
+DELETE {{baseUrl}}/api/items/{{existingItemId}}
+Authorization: Bearer {{otherAccessToken}}
+
+### 11) 상품 삭제 (존재하지 않는 상품: 404)
+DELETE {{baseUrl}}/api/items/{{notFoundItemId}}
+Authorization: Bearer {{accessToken}}
