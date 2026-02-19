@@ -4,6 +4,7 @@ import com.trademate.trademate.auth.jwt.JwtProvider;
 import com.trademate.trademate.common.exception.UnauthorizedException;
 import com.trademate.trademate.item.dto.ItemCreateRequest;
 import com.trademate.trademate.item.dto.ItemResponse;
+import com.trademate.trademate.item.dto.ItemStatusUpdateRequest;
 import com.trademate.trademate.item.dto.ItemUpdateRequest;
 import com.trademate.trademate.item.service.ItemService;
 import jakarta.validation.Valid;
@@ -56,6 +57,25 @@ public class ItemController {
         }
 
         ItemResponse response = itemService.updateItem(itemId, userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{itemId}/status")
+    public ResponseEntity<ItemResponse> changeItemStatus(
+            @PathVariable Long itemId,
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @Valid @RequestBody ItemStatusUpdateRequest request
+    ) {
+        String token = extractToken(authorization);
+
+        Long userId;
+        try {
+            userId = jwtProvider.getUserId(token);
+        } catch (Exception e) {
+            throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+        }
+
+        ItemResponse response = itemService.changeStatus(itemId, userId, request.getStatus());
         return ResponseEntity.ok(response);
     }
 

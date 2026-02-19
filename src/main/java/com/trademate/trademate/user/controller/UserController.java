@@ -26,12 +26,17 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     @GetMapping("/me")
-    public ResponseEntity<MeResponse> me(@RequestHeader(value = "Authorization", required = false) String authorization) {
+    public ResponseEntity<MeResponse> me(
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             throw new UnauthorizedException("인증 헤더가 올바르지 않습니다.");
         }
 
-        String token = authorization.substring(7);
+        String token = authorization.substring(7).trim();
+        if (token.isEmpty()) {
+            throw new UnauthorizedException("토큰이 비어있습니다.");
+        }
 
         Long userId;
         try {
@@ -42,4 +47,5 @@ public class UserController {
 
         return ResponseEntity.ok(userService.getMe(userId));
     }
+
 }

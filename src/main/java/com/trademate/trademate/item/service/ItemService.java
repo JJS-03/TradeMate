@@ -51,6 +51,32 @@ public class ItemService {
         return ItemResponse.from(item);
     }
 
+    public ItemResponse changeStatus(Long itemId, Long userId, ItemStatus newStatus) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다."));
+
+        if (!item.getSeller().getId().equals(userId)) {
+            throw new ForbiddenException("본인이 등록한 상품만 상태를 변경할 수 있습니다.");
+        }
+
+        if (newStatus == null) throw new IllegalArgumentException("status는 필수입니다.");
+
+        ItemStatus currentStatus = item.getStatus();
+        if (currentStatus == ItemStatus.SOLD) {
+            throw new IllegalArgumentException("판매 완료된 상품은 상태를 변경할 수 없습니다.");
+        }
+
+        boolean validTransition = (currentStatus == ItemStatus.SELLING && newStatus == ItemStatus.RESERVED)
+                || (currentStatus == ItemStatus.RESERVED && newStatus == ItemStatus.SOLD);
+
+        if (!validTransition) {
+            throw new IllegalArgumentException("허용되지 않는 상품 상태 변경입니다.");
+        }
+
+        item.changeStatus(newStatus);
+        return ItemResponse.from(item);
+    }
+
     public void deleteItem(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다."));

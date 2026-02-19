@@ -42,6 +42,9 @@ public class Item {
         this.price = price;
     }
 
+    public void changeStatus(ItemStatus status) {
+        this.status = status;
+    }
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

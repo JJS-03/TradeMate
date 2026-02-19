@@ -5,12 +5,13 @@
 @otherEmail = buyer1@test.com
 @otherPassword = 12345678
 # 로그인 후 발급된 token(eyJ...)을 아래에 붙여넣으세요. (Bearer 제외)
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxNDkxMjA0LCJleHAiOjE3NzE0OTQ4MDR9._wurz3Dsm6UcQ4q5ago9bj8BYBr460933Uuo2D-tY_d5nKsr8ecY8icEwgvTPlrU
-@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzE0OTEyMzQsImV4cCI6MTc3MTQ5NDgzNH0.rJycR2oSXmDjzGJS1jgAHg_nc_RRjNUxe7uVstd6e1IHjhKPLFZFb4NMGGbrZq13
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxNDkzMDEwLCJleHAiOjE3NzE0OTY2MTB9.feFz4Xs6OWrMu5NaY7nJqvTKHEPVLwAMvseyKP9ufQtkWsNDnl94qfUgz7XIGfAo
+@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzE0OTMwMzEsImV4cCI6MTc3MTQ5NjYzMX0.FUMENgG43FKe9-WkiXpfjOQzRFEcmC4rrQZWRRqMFSIkujnmuw7iJIwJo3K_QSbv
 # 반드시 seller1이 아닌 다른 계정의 토큰을 넣으세요. (같은 계정 토큰이면 7번도 200)
-@existingItemId = 28
+@existingItemId = 32
 # 5-1 응답의 id 값을 아래 existingItemId에 수동으로 넣어주세요 (미설정 시 6,7도 404)
 @notFoundItemId = 999999
+
 
 ### 0) 회원가입 (최초 1회만 실행)
 ### 이미 가입된 이메일이면 409(DUPLICATE_EMAIL)가 정상입니다.
@@ -148,3 +149,55 @@ Authorization: Bearer {{otherAccessToken}}
 ### 11) 상품 삭제 (존재하지 않는 상품: 404)
 DELETE {{baseUrl}}/api/items/{{notFoundItemId}}
 Authorization: Bearer {{accessToken}}
+
+Authorization: Bearer {{accessToken}}
+
+### 12) 상태 변경 준비용 상품 등록 (정상: 201)
+# @name createItemForStatusChange
+POST {{baseUrl}}/api/items
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "상태 변경 테스트 상품",
+  "description": "SELLING -> RESERVED -> SOLD 테스트",
+  "price": 700000
+}
+
+### 13) 상태 변경 (SELLING -> RESERVED, 정상: 200)
+# createItemForStatusChange 응답 id를 existingItemId에 넣거나 {{createItemForStatusChange.response.body.id}} 사용
+PATCH {{baseUrl}}/api/items/{{existingItemId}}/status
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "status": "RESERVED"
+}
+
+### 14) 상태 변경 (RESERVED -> SOLD, 정상: 200)
+PATCH {{baseUrl}}/api/items/{{existingItemId}}/status
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "status": "SOLD"
+}
+
+### 15) 상태 변경 (SOLD -> RESERVED 시도, 실패: 400)
+PATCH {{baseUrl}}/api/items/{{existingItemId}}/status
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "status": "RESERVED"
+}
+
+### 16) 상태 변경 (다른 유저 시도, 실패: 403)
+# 별도 SELLING 상태 상품으로 테스트해야 합니다. (이미 SOLD인 상품이면 400이 먼저 발생)
+PATCH {{baseUrl}}/api/items/{{existingItemId}}/status
+Content-Type: application/json
+Authorization: Bearer {{otherAccessToken}}
+
+{
+  "status": "RESERVED"
+}
