@@ -2,8 +2,16 @@
 @baseUrl = http://localhost:8080
 @email = seller1@test.com
 @password = 12345678
+@otherEmail = buyer1@test.com
+@otherPassword = 12345678
 # 로그인 후 발급된 token(eyJ...)을 아래에 붙여넣으세요. (Bearer 제외)
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxNDIwNzYxLCJleHAiOjE3NzE0MjQzNjF9.TnenNDWgAtfmDaYXHbrTqmOHCxYQscpKEhbe3F7D4LXgdJVL54sid8GiuFt4QjZe
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxNDg5MzAwLCJleHAiOjE3NzE0OTI5MDB9.ky9IKZjFiqxGSdtdEKglp_1rRvAq1h16vesuVMjFoE1ZtJ2vTzjUDa-XA6Y2nWai
+@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzE0ODkzNDgsImV4cCI6MTc3MTQ5Mjk0OH0.fXblkBGcwId1xeyPLn_nkhRgiDH234MpvfUfhnIyiA0B4KkEXGRz0AwwlvKbR_8p
+# 반드시 seller1이 아닌 다른 계정의 토큰을 넣으세요. (같은 계정 토큰이면 7번도 200)
+@existingItemId = 30
+# 5-1 응답의 id 값을 아래 existingItemId에 수동으로 넣어주세요 (미설정 시 6,7도 404)
+@notFoundItemId = 999999
+
 ### 0) 회원가입 (최초 1회만 실행)
 ### 이미 가입된 이메일이면 409(DUPLICATE_EMAIL)가 정상입니다.
 POST {{baseUrl}}/api/users/signup
@@ -24,10 +32,26 @@ Content-Type: application/json
   "password": "{{password}}"
 }
 
-> {%
-    // response.body.token 값을 accessToken 변수로 저장
-    client.global.set("accessToken", response.body.token);
-%}
+### 1-1) 다른 유저 회원가입 (403 테스트용, 최초 1회)
+POST {{baseUrl}}/api/users/signup
+Content-Type: application/json
+
+{
+  "email": "{{otherEmail}}",
+  "password": "{{otherPassword}}",
+  "nickname": "buyer1"
+}
+
+### 1-2) 다른 유저 로그인 (otherAccessToken 수동 갱신)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{otherEmail}}",
+  "password": "{{otherPassword}}"
+}
+
+### 응답 token 값을 @otherAccessToken에 붙여넣으세요.
 
 ### 2) 상품 등록 (정상: 201)
 ### 주의: accessToken에는 Bearer 없이 '토큰 문자열만' 저장되어야 함
@@ -64,14 +88,51 @@ Authorization: Bearer {{accessToken}}
   "price": 10000
 }
 
-### 5) 상품 등록 (price 음수: 400)
+### 5-1) 상품 등록 (수정 테스트용 ID 확보: 201)
+# @name createItemForUpdate
 POST {{baseUrl}}/api/items
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
-# 만약 여전히 401이면 로그인 응답의 token(eyJ...)만 복사해 아래 Authorization 헤더의 {{accessToken}} 값으로 사용
 
 {
-  "title": "키보드",
-  "description": "price 음수 테스트",
-  "price": -100
+  "title": "수정 테스트 원본",
+  "description": "수정 전 설명",
+  "price": 500000
+}
+
+
+### 6) 상품 수정 (정상: 200)
+# 5-1 실행 후 응답의 id를 existingItemId에 넣고 실행하세요.
+# (REST Client 확장 지원 시: {{createItemForUpdate.response.body.id}} 사용 가능)
+PUT {{baseUrl}}/api/items/{{existingItemId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "아이폰 14 Pro",
+  "description": "수정된 설명입니다.",
+  "price": 950000
+}
+
+### 7) 상품 수정 (다른 유저: 403)
+# otherAccessToken에 seller와 다른 계정 토큰을 넣어야 403이 나옵니다. (같은 토큰이면 200)
+PUT {{baseUrl}}/api/items/{{existingItemId}}
+Content-Type: application/json
+Authorization: Bearer {{otherAccessToken}}
+
+{
+  "title": "권한 없는 수정",
+  "description": "다른 유저 수정 시도",
+  "price": 100000
+}
+
+### 8) 상품 수정 (존재하지 않는 상품: 404)
+PUT {{baseUrl}}/api/items/{{notFoundItemId}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "없는 상품 수정",
+  "description": "404 테스트",
+  "price": 100000
 }

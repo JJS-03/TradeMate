@@ -36,6 +36,13 @@ public class Item {
     @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
+    public void update(String title, String description, Integer price) {
+        this.title = title;
+        this.description = description;
+        this.price = price;
+    }
+
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
