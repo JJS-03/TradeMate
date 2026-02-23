@@ -5,13 +5,13 @@
 @otherEmail = buyer1@test.com
 @otherPassword = 12345678
 # 로그인 후 발급된 token(eyJ...)을 아래에 붙여넣으세요. (Bearer 제외)
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxNDkzMDEwLCJleHAiOjE3NzE0OTY2MTB9.feFz4Xs6OWrMu5NaY7nJqvTKHEPVLwAMvseyKP9ufQtkWsNDnl94qfUgz7XIGfAo
-@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzE0OTMwMzEsImV4cCI6MTc3MTQ5NjYzMX0.FUMENgG43FKe9-WkiXpfjOQzRFEcmC4rrQZWRRqMFSIkujnmuw7iJIwJo3K_QSbv
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxODIwNDk5LCJleHAiOjE3NzE4MjQwOTl9.gIcnvzd12Vem8Om6IcJMOV6z2h_K-Z8ji8a9Y93gz2HMoiZi5ISUUia_Yhi7HYsw
+@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzE4MjA1MjIsImV4cCI6MTc3MTgyNDEyMn0.WxyE7HememKWXcs3f5cHobMIrVjutR3EqlBfLy13ct0eq1vTZY5a_nUraX_zNJTY
 # 반드시 seller1이 아닌 다른 계정의 토큰을 넣으세요. (같은 계정 토큰이면 7번도 200)
-@existingItemId = 32
+@existingItemId = 35
 # 5-1 응답의 id 값을 아래 existingItemId에 수동으로 넣어주세요 (미설정 시 6,7도 404)
 @notFoundItemId = 999999
-
+@purchaseItemId = 35
 
 ### 0) 회원가입 (최초 1회만 실행)
 ### 이미 가입된 이메일이면 409(DUPLICATE_EMAIL)가 정상입니다.
@@ -201,3 +201,46 @@ Authorization: Bearer {{otherAccessToken}}
 {
   "status": "RESERVED"
 }
+
+
+### 17) 구매 테스트용 상품 등록 (정상: 201)
+# @name createItemForPurchase
+POST {{baseUrl}}/api/items
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "구매 테스트 상품",
+  "description": "구매 API 검증용",
+  "price": 350000
+}
+
+### 18) 정상 구매 (정상: 201)
+# createItemForPurchase 응답 id를 purchaseItemId에 넣거나 {{createItemForPurchase.response.body.id}} 사용
+POST {{baseUrl}}/api/items/{{purchaseItemId}}/purchase
+Authorization: Bearer {{otherAccessToken}}
+
+### 19) 이미 RESERVED 상품 재구매 시도 (실패: 400)
+POST {{baseUrl}}/api/items/{{purchaseItemId}}/purchase
+Authorization: Bearer {{otherAccessToken}}
+
+### 20) 자기 상품 구매 시도용 상품 등록 (정상: 201)
+# @name createItemForSelfPurchase
+POST {{baseUrl}}/api/items
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "title": "자기 구매 시도 상품",
+  "description": "본인 상품 구매 불가 검증",
+  "price": 120000
+}
+
+### 21) 자기 상품 구매 시도 (실패: 400)
+# createItemForSelfPurchase 응답 id를 purchaseItemId에 넣거나 {{createItemForSelfPurchase.response.body.id}} 사용
+POST {{baseUrl}}/api/items/{{purchaseItemId}}/purchase
+Authorization: Bearer {{accessToken}}
+
+### 22) 존재하지 않는 상품 구매 시도 (실패: 404)
+POST {{baseUrl}}/api/items/{{notFoundItemId}}/purchase
+Authorization: Bearer {{otherAccessToken}}

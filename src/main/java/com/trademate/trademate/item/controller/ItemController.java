@@ -7,6 +7,8 @@ import com.trademate.trademate.item.dto.ItemResponse;
 import com.trademate.trademate.item.dto.ItemStatusUpdateRequest;
 import com.trademate.trademate.item.dto.ItemUpdateRequest;
 import com.trademate.trademate.item.service.ItemService;
+import com.trademate.trademate.trade.dto.TradeResponse;
+import com.trademate.trademate.trade.service.TradeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ public class ItemController {
 
     private final JwtProvider jwtProvider;
     private final ItemService itemService;
+    private final TradeService tradeService;
 
     @PostMapping
     public ResponseEntity<ItemResponse> createItem(
@@ -77,6 +80,24 @@ public class ItemController {
 
         ItemResponse response = itemService.changeStatus(itemId, userId, request.getStatus());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{itemId}/purchase")
+    public ResponseEntity<TradeResponse> purchaseItem(
+            @PathVariable Long itemId,
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        String token = extractToken(authorization);
+
+        Long buyerId;
+        try {
+            buyerId = jwtProvider.getUserId(token);
+        } catch (Exception e) {
+            throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+        }
+
+        TradeResponse response = tradeService.purchase(itemId, buyerId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{itemId}")
