@@ -8,6 +8,7 @@ class TrademateApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }

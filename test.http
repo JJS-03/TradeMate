@@ -4,14 +4,16 @@
 @password = 12345678
 @otherEmail = buyer1@test.com
 @otherPassword = 12345678
+@testEmail = buyer2@test.com
+@testPassword = 12345678
 # 로그인 후 발급된 token(eyJ...)을 아래에 붙여넣으세요. (Bearer 제외)
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcxODIwNDk5LCJleHAiOjE3NzE4MjQwOTl9.gIcnvzd12Vem8Om6IcJMOV6z2h_K-Z8ji8a9Y93gz2HMoiZi5ISUUia_Yhi7HYsw
-@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzE4MjA1MjIsImV4cCI6MTc3MTgyNDEyMn0.WxyE7HememKWXcs3f5cHobMIrVjutR3EqlBfLy13ct0eq1vTZY5a_nUraX_zNJTY
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcyMDI4MDczLCJleHAiOjE3NzIwMzE2NzN9.pC75dRPEcgU3sU5Im7-dpKUZ2wy2V8BG9OGAsl45RUS7hJdNtJXDSRxas7C3j--4
+@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzIwMDgwNzgsImV4cCI6MTc3MjAxMTY3OH0.KBxqUjK_fuiAuP1tIiD11_5VLk7ZYTvQ4QvX4JXLB9tQKXR1Tf4K7GKTmUCb5GXz
 # 반드시 seller1이 아닌 다른 계정의 토큰을 넣으세요. (같은 계정 토큰이면 7번도 200)
-@existingItemId = 35
+@existingItemId = 18
 # 5-1 응답의 id 값을 아래 existingItemId에 수동으로 넣어주세요 (미설정 시 6,7도 404)
 @notFoundItemId = 999999
-@purchaseItemId = 35
+@purchaseItemId = 42
 
 ### 0) 회원가입 (최초 1회만 실행)
 ### 이미 가입된 이메일이면 409(DUPLICATE_EMAIL)가 정상입니다.
@@ -50,6 +52,24 @@ Content-Type: application/json
 {
   "email": "{{otherEmail}}",
   "password": "{{otherPassword}}"
+}
+
+### 1-1) 다른 유저 회원가입 (403 테스트용, 최초 1회)
+POST {{baseUrl}}/api/users/signup
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}",
+  "nickname": "buyer2"
+}
+### 1) 로그인 (항상 이 요청으로 토큰 재발급)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
 }
 
 ### 응답 token 값을 @otherAccessToken에 붙여넣으세요.

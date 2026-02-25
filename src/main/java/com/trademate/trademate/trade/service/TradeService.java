@@ -24,7 +24,7 @@ public class TradeService {
     private final TradeRepository tradeRepository;
 
     public TradeResponse purchase(Long itemId, Long buyerId) {
-        Item item = itemRepository.findById(itemId)
+        Item item = itemRepository.findByIdForUpdate(itemId)
                 .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다."));
 
         if (item.getStatus() != ItemStatus.SELLING) {
