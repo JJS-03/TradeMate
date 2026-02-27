@@ -42,4 +42,8 @@ public class Trade {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public void changeStatus(TradeStatus status) {
+        this.status = status;
+    }
 }

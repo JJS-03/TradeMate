@@ -7,13 +7,14 @@
 @testEmail = buyer2@test.com
 @testPassword = 12345678
 # 로그인 후 발급된 token(eyJ...)을 아래에 붙여넣으세요. (Bearer 제외)
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcyMDI4MDczLCJleHAiOjE3NzIwMzE2NzN9.pC75dRPEcgU3sU5Im7-dpKUZ2wy2V8BG9OGAsl45RUS7hJdNtJXDSRxas7C3j--4
-@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzIwMDgwNzgsImV4cCI6MTc3MjAxMTY3OH0.KBxqUjK_fuiAuP1tIiD11_5VLk7ZYTvQ4QvX4JXLB9tQKXR1Tf4K7GKTmUCb5GXz
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcyMTcyNTkzLCJleHAiOjE3NzIxNzYxOTN9.d0CEYk7mzOxXAez3U_XcOXOgvLjDiab_TKPaaisxAeTeyngVSmKeUHeqiudYG51s
+@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzIxNzI2MTYsImV4cCI6MTc3MjE3NjIxNn0.tSIwsTq6zJ20TOoMB3gnO_QveWAfYtNjRe34z1LgogLS5IoqkjcKi7uHXs1a8H9g
 # 반드시 seller1이 아닌 다른 계정의 토큰을 넣으세요. (같은 계정 토큰이면 7번도 200)
 @existingItemId = 18
 # 5-1 응답의 id 값을 아래 existingItemId에 수동으로 넣어주세요 (미설정 시 6,7도 404)
 @notFoundItemId = 999999
-@purchaseItemId = 42
+@purchaseItemId = 51
+@completeTradeId = 35
 
 ### 0) 회원가입 (최초 1회만 실행)
 ### 이미 가입된 이메일이면 409(DUPLICATE_EMAIL)가 정상입니다.
@@ -26,7 +27,7 @@ Content-Type: application/json
   "nickname": "seller1"
 }
 
-### 1) 로그인 (항상 이 요청으로 토큰 재발급)
+### 1) 로그인 (판매자 항상 이 요청으로 토큰 재발급)
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
@@ -54,7 +55,7 @@ Content-Type: application/json
   "password": "{{otherPassword}}"
 }
 
-### 1-1) 다른 유저 회원가입 (403 테스트용, 최초 1회)
+### 1-1) 다른 유저 회원가입 (동시성 구매자 테스트용, 최초 1회)
 POST {{baseUrl}}/api/users/signup
 Content-Type: application/json
 
@@ -63,7 +64,7 @@ Content-Type: application/json
   "password": "{{testPassword}}",
   "nickname": "buyer2"
 }
-### 1) 로그인 (항상 이 요청으로 토큰 재발급)
+### 1) 다른 유저 로그인 (동시성 제어 구매자2)
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
@@ -236,7 +237,9 @@ Authorization: Bearer {{accessToken}}
 }
 
 ### 18) 정상 구매 (정상: 201)
+# @name purchaseTrade
 # createItemForPurchase 응답 id를 purchaseItemId에 넣거나 {{createItemForPurchase.response.body.id}} 사용
+# 응답 예시: {"id": 123, "itemId": ..., "status": "RESERVED", ...}  -> 여기서 id가 trade id
 POST {{baseUrl}}/api/items/{{purchaseItemId}}/purchase
 Authorization: Bearer {{otherAccessToken}}
 
@@ -264,3 +267,21 @@ Authorization: Bearer {{accessToken}}
 ### 22) 존재하지 않는 상품 구매 시도 (실패: 404)
 POST {{baseUrl}}/api/items/{{notFoundItemId}}/purchase
 Authorization: Bearer {{otherAccessToken}}
+
+### 23) 거래 완료 (정상: 200)
+# 방법1) 위 18번(@name purchaseTrade) 응답 id를 completeTradeId에 넣어서 요청
+# 방법2) REST Client 지원 시 아래처럼 바로 사용: /api/trades/{{purchaseTrade.response.body.id}}/complete
+POST {{baseUrl}}/api/trades/{{completeTradeId}}/complete
+Authorization: Bearer {{accessToken}}
+
+### 24) 구매자가 거래 완료 시도 (실패: 403)
+POST {{baseUrl}}/api/trades/{{completeTradeId}}/complete
+Authorization: Bearer {{otherAccessToken}}
+
+### 25) 이미 완료된 거래 완료 재시도 (실패: 400)
+POST {{baseUrl}}/api/trades/{{completeTradeId}}/complete
+Authorization: Bearer {{accessToken}}
+
+### 26) 존재하지 않는 거래 완료 시도 (실패: 404)
+POST {{baseUrl}}/api/trades/{{notFoundItemId}}/complete
+Authorization: Bearer {{accessToken}}

@@ -1,5 +1,6 @@
 package com.trademate.trademate.trade.service;
 
+import com.trademate.trademate.common.exception.ForbiddenException;
 import com.trademate.trademate.common.exception.NotFoundException;
 import com.trademate.trademate.domain.item.Item;
 import com.trademate.trademate.domain.item.ItemRepository;
@@ -48,7 +49,29 @@ public class TradeService {
 
         item.changeStatus(ItemStatus.RESERVED);
 
-        Trade savedTrade = tradeRepository.save(trade);
+        Trade savedTrade = tradeRepository.saveAndFlush(trade);
         return TradeResponse.from(savedTrade);
+    }
+    public TradeResponse completeTrade(Long tradeId, Long userId) {
+        Trade trade = tradeRepository.findWithDetailsById(tradeId)
+                .orElseThrow(() -> new NotFoundException("거래를 찾을 수 없습니다."));
+
+        if (!trade.getSeller().getId().equals(userId)) {
+            throw new ForbiddenException("판매자만 거래를 완료할 수 있습니다.");
+        }
+
+        if (trade.getStatus() != TradeStatus.RESERVED) {
+            throw new IllegalArgumentException("예약 상태의 거래만 완료할 수 있습니다.");
+        }
+
+        Item item = trade.getItem();
+        if (item.getStatus() != ItemStatus.RESERVED) {
+            throw new IllegalArgumentException("예약 상태의 상품만 판매 완료할 수 있습니다.");
+        }
+
+        trade.changeStatus(TradeStatus.COMPLETED);
+        item.changeStatus(ItemStatus.SOLD);
+
+        return TradeResponse.from(trade);
     }
 }
