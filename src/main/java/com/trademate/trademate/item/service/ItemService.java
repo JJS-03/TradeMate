@@ -9,9 +9,14 @@ import com.trademate.trademate.domain.item.ItemStatus;
 import com.trademate.trademate.domain.user.User;
 import com.trademate.trademate.domain.user.UserRepository;
 import com.trademate.trademate.item.dto.ItemCreateRequest;
+import com.trademate.trademate.item.dto.ItemListResponse;
 import com.trademate.trademate.item.dto.ItemResponse;
 import com.trademate.trademate.item.dto.ItemUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +80,33 @@ public class ItemService {
 
         item.changeStatus(newStatus);
         return ItemResponse.from(item);
+    }
+
+    public Page<ItemListResponse> searchItems(String q, ItemStatus status, String sort, Pageable pageable) {
+        Sort validatedSort = toSort(sort);
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), validatedSort);
+
+        return itemRepository.search(normalizeQuery(q), status, sortedPageable)
+                .map(ItemListResponse::from);
+    }
+
+    private String normalizeQuery(String q) {
+        if (q == null || q.isBlank()) {
+            return null;
+        }
+        return q.trim();
+    }
+
+    private Sort toSort(String sort) {
+        if (sort == null || sort.isBlank() || sort.equals("latest")) {
+            return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+
+        return switch (sort) {
+            case "priceAsc" -> Sort.by(Sort.Direction.ASC, "price");
+            case "priceDesc" -> Sort.by(Sort.Direction.DESC, "price");
+            default -> throw new IllegalArgumentException("허용되지 않은 sort 값입니다. (latest, priceAsc, priceDesc)");
+        };
     }
 
     public void deleteItem(Long itemId, Long userId) {

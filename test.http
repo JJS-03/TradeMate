@@ -238,7 +238,7 @@ Authorization: Bearer {{accessToken}}
 {
   "title": "구매 테스트 상품",
   "description": "구매 API 검증용",
-  "price": 350000
+  "price": 1000
 }
 
 ### 18) 정상 구매 (정상: 201)
@@ -322,3 +322,26 @@ GET {{baseUrl}}/api/trades/me/purchases?page=0&size=10
 
 ### 34) 내 판매 내역 조회 (Authorization 누락: 401)
 GET {{baseUrl}}/api/trades/me/sales?page=0&size=10
+
+GET {{baseUrl}}/api/trades/me/sales?page=0&size=10
+### 31) 상품 목록 조회 - 기본(최신순, 200)
+GET {{baseUrl}}/api/items
+
+### 32) 상품 목록 조회 - q 검색(200)
+GET {{baseUrl}}/api/items?q=아이폰
+
+### 33) 상품 목록 조회 - status 필터(SELLING, 200)
+GET {{baseUrl}}/api/items?status=SELLING
+
+### 34) 상품 목록 조회 - 가격 오름차순(200)
+GET {{baseUrl}}/api/items?sort=priceAsc
+
+### 35) 상품 목록 조회 - 가격 내림차순(200)
+GET {{baseUrl}}/api/items?sort=priceDesc
+
+### 36) 상품 목록 조회 - 잘못된 sort(400)
+GET {{baseUrl}}/api/items?sort=oldest
+
+GET {{baseUrl}}/api/trades/me/sales?page=0&size=5
+### 31) 상품 목록 조회 - 기본(최신순, 200)
+GET {{baseUrl}}/api/items

@@ -1,8 +1,10 @@
 package com.trademate.trademate.item.controller;
 
 import com.trademate.trademate.auth.jwt.JwtProvider;
+import com.trademate.trademate.domain.item.ItemStatus;
 import com.trademate.trademate.common.exception.UnauthorizedException;
 import com.trademate.trademate.item.dto.ItemCreateRequest;
+import com.trademate.trademate.item.dto.ItemListResponse;
 import com.trademate.trademate.item.dto.ItemResponse;
 import com.trademate.trademate.item.dto.ItemStatusUpdateRequest;
 import com.trademate.trademate.item.dto.ItemUpdateRequest;
@@ -11,6 +13,9 @@ import com.trademate.trademate.trade.dto.TradeResponse;
 import com.trademate.trademate.trade.service.TradeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +30,17 @@ public class ItemController {
     private final JwtProvider jwtProvider;
     private final ItemService itemService;
     private final TradeService tradeService;
+
+    @GetMapping
+    public ResponseEntity<Page<ItemListResponse>> getItems(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) ItemStatus status,
+            @RequestParam(defaultValue = "latest") String sort,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<ItemListResponse> response = itemService.searchItems(q, status, sort, pageable);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping
     public ResponseEntity<ItemResponse> createItem(
