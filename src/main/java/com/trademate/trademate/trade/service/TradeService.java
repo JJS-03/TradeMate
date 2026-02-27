@@ -11,9 +11,13 @@ import com.trademate.trademate.domain.trade.TradeStatus;
 import com.trademate.trademate.domain.user.User;
 import com.trademate.trademate.domain.user.UserRepository;
 import com.trademate.trademate.trade.dto.TradeResponse;
+import com.trademate.trademate.trade.dto.TradeSummaryResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -95,5 +99,16 @@ public class TradeService {
         item.changeStatus(ItemStatus.SELLING);
 
         return TradeResponse.from(trade);
+    }
+    @Transactional(readOnly = true)
+    public Page<TradeSummaryResponse> getMyPurchases(Long userId, Pageable pageable) {
+        return tradeRepository.findPurchasesByBuyerId(userId, pageable)
+                .map(TradeSummaryResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TradeSummaryResponse> getMySales(Long userId, Pageable pageable) {
+        return tradeRepository.findSalesBySellerId(userId, pageable)
+                .map(TradeSummaryResponse::from);
     }
 }

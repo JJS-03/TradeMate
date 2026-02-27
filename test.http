@@ -7,15 +7,19 @@
 @testEmail = buyer2@test.com
 @testPassword = 12345678
 # 로그인 후 발급된 token(eyJ...)을 아래에 붙여넣으세요. (Bearer 제외)
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcyMTc1MTg1LCJleHAiOjE3NzIxNzg3ODV9.h0q6Fji1cgxCOiWV0g3Vpd5nCwH5NEq1ZAS1YoLMDjljsIsXMD1rpP_QYkn9zFQs
-@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzIxNzUyMDQsImV4cCI6MTc3MjE3ODgwNH0.y3FJi7bKD34TAhXhX-VfEeT_RZjIwXo92zBVwGG3wQ3AD_NqaAoY_dKMUDCfwqOy
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcyMTc5NDEwLCJleHAiOjE3NzIxODMwMTB9.78niU2Xw4UN6qzJqbAOCu2vn4UHbXZillCfdP1kj8i3LLqU2onaz_6p55r1rPoG6
+@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiIxMCIsImVtYWlsIjoiYnV5ZXIyQHRlc3QuY29tIiwiaWF0IjoxNzcyMTc5NTQ4LCJleHAiOjE3NzIxODMxNDh9.8h0ygmNszrRtEWEtHs9yX6qEjf1D7jwRbQ4m6rizJPX1lwHKCDyvneL7D9MvadgP
 # 반드시 seller1이 아닌 다른 계정의 토큰을 넣으세요. (같은 계정 토큰이면 7번도 200)
 @existingItemId = 18
 # 5-1 응답의 id 값을 아래 existingItemId에 수동으로 넣어주세요 (미설정 시 6,7도 404)
 @notFoundItemId = 999999
-@purchaseItemId = 55
+@purchaseItemId = 17
 @completeTradeId = 39
 @cancelTradeId = 39
+
+# 내 거래 목록 조회용 토큰(서로 다른 계정 권장)
+@myPurchasesToken = {{otherAccessToken}}
+@mySalesToken = {{accessToken}}
 
 ### 0) 회원가입 (최초 1회만 실행)
 ### 이미 가입된 이메일이면 409(DUPLICATE_EMAIL)가 정상입니다.
@@ -303,3 +307,18 @@ Authorization: Bearer {{otherAccessToken}}
 ### 30) 존재하지 않는 거래 취소 시도 (실패: 404)
 POST {{baseUrl}}/api/trades/{{notFoundItemId}}/cancel
 Authorization: Bearer {{otherAccessToken}}
+
+### 31) 내 구매 내역 조회 (정상: 200, Page 구조 확인)
+# 주의: 구매/판매가 같은 결과라면 myPurchasesToken과 mySalesToken이 같은 계정인지 확인하세요.
+GET {{baseUrl}}/api/trades/me/purchases?page=0&size=10
+Authorization: Bearer {{myPurchasesToken}}
+
+### 32) 내 판매 내역 조회 (정상: 200, Page 구조 확인)
+GET {{baseUrl}}/api/trades/me/sales?page=0&size=10
+Authorization: Bearer {{mySalesToken}}
+
+### 33) 내 구매 내역 조회 (Authorization 누락: 401)
+GET {{baseUrl}}/api/trades/me/purchases?page=0&size=10
+
+### 34) 내 판매 내역 조회 (Authorization 누락: 401)
+GET {{baseUrl}}/api/trades/me/sales?page=0&size=10

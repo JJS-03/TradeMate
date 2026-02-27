@@ -3,9 +3,13 @@ package com.trademate.trademate.trade.controller;
 import com.trademate.trademate.auth.jwt.JwtProvider;
 import com.trademate.trademate.common.exception.UnauthorizedException;
 import com.trademate.trademate.trade.dto.TradeResponse;
+import com.trademate.trademate.trade.dto.TradeSummaryResponse;
 import com.trademate.trademate.trade.service.TradeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -27,14 +31,8 @@ public class TradeController {
             @PathVariable Long tradeId,
             @RequestHeader(value = "Authorization", required = false) String authorization
     ) {
-        String token = extractToken(authorization);
 
-        Long userId;
-        try {
-            userId = jwtProvider.getUserId(token);
-        } catch (Exception e) {
-            throw new UnauthorizedException("유효하지 않은 토큰입니다.");
-        }
+        Long userId = getUserIdFromAuthorization(authorization);
 
         TradeResponse response = tradeService.completeTrade(tradeId, userId);
         return ResponseEntity.ok(response);
@@ -45,17 +43,40 @@ public class TradeController {
             @PathVariable Long tradeId,
             @RequestHeader(value = "Authorization", required = false) String authorization
     ) {
+        Long userId = getUserIdFromAuthorization(authorization);
+
+        TradeResponse response = tradeService.cancelTrade(tradeId, userId);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/me/purchases")
+    public ResponseEntity<Page<TradeSummaryResponse>> getMyPurchases(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            Pageable pageable
+    ) {
+        Long userId = getUserIdFromAuthorization(authorization);
+        return ResponseEntity.ok(tradeService.getMyPurchases(userId, pageable));
+    }
+
+    @GetMapping("/me/sales")
+    public ResponseEntity<Page<TradeSummaryResponse>> getMySales(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            Pageable pageable
+    ) {
+        Long userId = getUserIdFromAuthorization(authorization);
+        return ResponseEntity.ok(tradeService.getMySales(userId, pageable));
+    }
+
+    private Long getUserIdFromAuthorization(String authorization) {
         String token = extractToken(authorization);
 
-        Long userId;
         try {
-            userId = jwtProvider.getUserId(token);
+            return jwtProvider.getUserId(token);
         } catch (Exception e) {
             throw new UnauthorizedException("유효하지 않은 토큰입니다.");
         }
 
-        TradeResponse response = tradeService.cancelTrade(tradeId, userId);
-        return ResponseEntity.ok(response);
     }
 
     private String extractToken(String authorization) {
