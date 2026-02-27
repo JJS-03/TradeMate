@@ -74,4 +74,26 @@ public class TradeService {
 
         return TradeResponse.from(trade);
     }
+    public TradeResponse cancelTrade(Long tradeId, Long userId) {
+        Trade trade = tradeRepository.findWithDetailsById(tradeId)
+                .orElseThrow(() -> new NotFoundException("거래를 찾을 수 없습니다."));
+
+        if (!trade.getBuyer().getId().equals(userId)) {
+            throw new ForbiddenException("구매자만 거래를 취소할 수 있습니다.");
+        }
+
+        if (trade.getStatus() != TradeStatus.RESERVED) {
+            throw new IllegalArgumentException("예약 상태의 거래만 취소할 수 있습니다.");
+        }
+
+        Item item = trade.getItem();
+        if (item.getStatus() != ItemStatus.RESERVED) {
+            throw new IllegalArgumentException("예약 상태의 상품만 취소할 수 있습니다.");
+        }
+
+        trade.changeStatus(TradeStatus.CANCELED);
+        item.changeStatus(ItemStatus.SELLING);
+
+        return TradeResponse.from(trade);
+    }
 }

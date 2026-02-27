@@ -40,6 +40,24 @@ public class TradeController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{tradeId}/cancel")
+    public ResponseEntity<TradeResponse> cancelTrade(
+            @PathVariable Long tradeId,
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        String token = extractToken(authorization);
+
+        Long userId;
+        try {
+            userId = jwtProvider.getUserId(token);
+        } catch (Exception e) {
+            throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+        }
+
+        TradeResponse response = tradeService.cancelTrade(tradeId, userId);
+        return ResponseEntity.ok(response);
+    }
+
     private String extractToken(String authorization) {
         if (authorization == null || authorization.isBlank()) {
             throw new UnauthorizedException("Authorization 헤더가 필요합니다.");

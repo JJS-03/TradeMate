@@ -7,14 +7,15 @@
 @testEmail = buyer2@test.com
 @testPassword = 12345678
 # 로그인 후 발급된 token(eyJ...)을 아래에 붙여넣으세요. (Bearer 제외)
-@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcyMTcyNTkzLCJleHAiOjE3NzIxNzYxOTN9.d0CEYk7mzOxXAez3U_XcOXOgvLjDiab_TKPaaisxAeTeyngVSmKeUHeqiudYG51s
-@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzIxNzI2MTYsImV4cCI6MTc3MjE3NjIxNn0.tSIwsTq6zJ20TOoMB3gnO_QveWAfYtNjRe34z1LgogLS5IoqkjcKi7uHXs1a8H9g
+@accessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI2IiwiZW1haWwiOiJzZWxsZXIxQHRlc3QuY29tIiwiaWF0IjoxNzcyMTc1MTg1LCJleHAiOjE3NzIxNzg3ODV9.h0q6Fji1cgxCOiWV0g3Vpd5nCwH5NEq1ZAS1YoLMDjljsIsXMD1rpP_QYkn9zFQs
+@otherAccessToken = eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJidXllcjFAdGVzdC5jb20iLCJpYXQiOjE3NzIxNzUyMDQsImV4cCI6MTc3MjE3ODgwNH0.y3FJi7bKD34TAhXhX-VfEeT_RZjIwXo92zBVwGG3wQ3AD_NqaAoY_dKMUDCfwqOy
 # 반드시 seller1이 아닌 다른 계정의 토큰을 넣으세요. (같은 계정 토큰이면 7번도 200)
 @existingItemId = 18
 # 5-1 응답의 id 값을 아래 existingItemId에 수동으로 넣어주세요 (미설정 시 6,7도 404)
 @notFoundItemId = 999999
-@purchaseItemId = 51
-@completeTradeId = 35
+@purchaseItemId = 55
+@completeTradeId = 39
+@cancelTradeId = 39
 
 ### 0) 회원가입 (최초 1회만 실행)
 ### 이미 가입된 이메일이면 409(DUPLICATE_EMAIL)가 정상입니다.
@@ -285,3 +286,20 @@ Authorization: Bearer {{accessToken}}
 ### 26) 존재하지 않는 거래 완료 시도 (실패: 404)
 POST {{baseUrl}}/api/trades/{{notFoundItemId}}/complete
 Authorization: Bearer {{accessToken}}
+
+### 27) 거래 취소 (정상: 200)
+# cancelTradeId는 RESERVED 상태의 거래 id여야 합니다.
+POST {{baseUrl}}/api/trades/{{cancelTradeId}}/cancel
+Authorization: Bearer {{otherAccessToken}}
+
+### 28) 판매자가 거래 취소 시도 (실패: 403)
+POST {{baseUrl}}/api/trades/{{cancelTradeId}}/cancel
+Authorization: Bearer {{accessToken}}
+
+### 29) 이미 COMPLETED 상태 거래 취소 시도 (실패: 400)
+POST {{baseUrl}}/api/trades/{{completeTradeId}}/cancel
+Authorization: Bearer {{otherAccessToken}}
+
+### 30) 존재하지 않는 거래 취소 시도 (실패: 404)
+POST {{baseUrl}}/api/trades/{{notFoundItemId}}/cancel
+Authorization: Bearer {{otherAccessToken}}
