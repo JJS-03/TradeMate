@@ -4,6 +4,7 @@ import com.trademate.trademate.auth.jwt.JwtProvider;
 import com.trademate.trademate.domain.item.ItemStatus;
 import com.trademate.trademate.common.exception.UnauthorizedException;
 import com.trademate.trademate.item.dto.ItemCreateRequest;
+import com.trademate.trademate.item.dto.ItemDetailResponse;
 import com.trademate.trademate.item.dto.ItemListResponse;
 import com.trademate.trademate.item.dto.ItemResponse;
 import com.trademate.trademate.item.dto.ItemStatusUpdateRequest;
@@ -41,6 +42,13 @@ public class ItemController {
         Page<ItemListResponse> response = itemService.searchItems(q, status, sort, pageable);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ItemDetailResponse> getItemDetail(@PathVariable Long itemId) {
+        ItemDetailResponse response = itemService.getItemDetail(itemId);
+        return ResponseEntity.ok(response);
+    }
+
 
     @PostMapping
     public ResponseEntity<ItemResponse> createItem(

@@ -1,7 +1,6 @@
 package com.trademate.trademate.domain.item;
 
 import jakarta.persistence.LockModeType;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +34,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select i from Item i join fetch i.seller where i.id = :id")
     Optional<Item> findByIdForUpdate(@Param("id") Long id);
+
+    @Query("select i from Item i join fetch i.seller where i.id = :id")
+    Optional<Item> findDetailById(@Param("id") Long id);
 }

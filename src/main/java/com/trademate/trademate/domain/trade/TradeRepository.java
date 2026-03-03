@@ -25,4 +25,7 @@ public interface TradeRepository extends JpaRepository<Trade, Long> {
             countQuery = "select count(t) from Trade t where t.seller.id = :sellerId"
     )
     Page<Trade> findSalesBySellerId(@Param("sellerId") Long sellerId, Pageable pageable);
+
+    @Query("select t from Trade t join fetch t.buyer where t.item.id = :itemId and t.status = :status")
+    Optional<Trade> findByItemIdAndStatus(@Param("itemId") Long itemId, @Param("status") TradeStatus status);
 }

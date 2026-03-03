@@ -6,9 +6,13 @@ import com.trademate.trademate.common.exception.UnauthorizedException;
 import com.trademate.trademate.domain.item.Item;
 import com.trademate.trademate.domain.item.ItemRepository;
 import com.trademate.trademate.domain.item.ItemStatus;
+import com.trademate.trademate.domain.trade.Trade;
+import com.trademate.trademate.domain.trade.TradeRepository;
+import com.trademate.trademate.domain.trade.TradeStatus;
 import com.trademate.trademate.domain.user.User;
 import com.trademate.trademate.domain.user.UserRepository;
 import com.trademate.trademate.item.dto.ItemCreateRequest;
+import com.trademate.trademate.item.dto.ItemDetailResponse;
 import com.trademate.trademate.item.dto.ItemListResponse;
 import com.trademate.trademate.item.dto.ItemResponse;
 import com.trademate.trademate.item.dto.ItemUpdateRequest;
@@ -27,6 +31,7 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final TradeRepository tradeRepository;
 
     public ItemResponse createItem(Long sellerId, ItemCreateRequest req) {
         User seller = userRepository.findById(sellerId)
@@ -43,6 +48,21 @@ public class ItemService {
         Item saved = itemRepository.save(item);
         return ItemResponse.from(saved);
     }
+
+    @Transactional(readOnly = true)
+    public ItemDetailResponse getItemDetail(Long itemId) {
+        Item item = itemRepository.findDetailById(itemId)
+                .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다."));
+
+        Trade reservedTrade = null;
+        if (item.getStatus() == ItemStatus.RESERVED) {
+            reservedTrade = tradeRepository.findByItemIdAndStatus(itemId, TradeStatus.RESERVED)
+                    .orElse(null);
+        }
+
+        return ItemDetailResponse.from(item, reservedTrade);
+    }
+
     public ItemResponse updateItem(Long itemId, Long userId, ItemUpdateRequest req) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("상품을 찾을 수 없습니다."));
