@@ -172,12 +172,18 @@ Response
 
 -Nginx Reverse Proxy 설정
 
-API Endpoint Example
-http://3.39.248.28/api/items
+## API Endpoint Example
+
+GET /api/items?page=0&size=10
+
+Example
+
+http://EC2_PUBLIC_IP/api/items?page=0&size=10
 
 ---
 
 # Troubleshooting
+
 ## Public Key Retrieval is not allowed
 
 MySQL 8 연결 시 발생한 문제
