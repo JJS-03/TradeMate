@@ -44,18 +44,15 @@ Tools
 
 ---
 
-## System Architecture
+# System Architecture
 
 
-Browser
-│
-▼
+Client (Browser)
+↓
 Nginx (Port 80)
-│
-▼
+↓
 Spring Boot (Port 8080)
-│
-▼
+↓
 MySQL
 
 
