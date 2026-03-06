@@ -49,12 +49,15 @@ Tools
 Browser
    │
    ▼
+   
 Nginx (80)
    │
    ▼
+   
 Spring Boot (8080)
    │
    ▼
+   
 MySQL 
 
 Nginx를 Reverse Proxy로 구성하여 외부 요청을 Spring Boot 서버로 전달하도록 설계했습니다.
