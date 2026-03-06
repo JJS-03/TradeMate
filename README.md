@@ -47,14 +47,17 @@ Tools
 ## System Architecture
 
 Browser
+
    │
    ▼
    
 Nginx (80)
+
    │
    ▼
    
 Spring Boot (8080)
+
    │
    ▼
    
