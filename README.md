@@ -20,31 +20,31 @@ TradeMate는 중고 거래 서비스에서 발생하는
 
 # Tech Stack
 
-Backend
+## Backend
 
 - Java 17
 - Spring Boot
 - Spring Data JPA (Hibernate)
 - JWT Authentication
 
-Database
+## Database
 
 - MySQL
 
-Infrastructure
+## Infrastructure
 
 - AWS EC2 (Ubuntu 22.04)
 - Nginx (Reverse Proxy)
 - systemd 서비스 관리
 
-Tools
+## Tools
 
 - Git / GitHub
 - IntelliJ
 
 ---
 
-## System Architecture
+# System Architecture
 
 Client (Browser)  
 ↓  
@@ -55,6 +55,43 @@ Spring Boot (Port 8080)
 MySQL  
 
 Nginx를 Reverse Proxy로 구성하여 외부 요청을 Spring Boot 서버로 전달하도록 설계했습니다.
+
+---
+
+# Database ERD
+
+## Users
+
+- id (PK)
+- email
+- password
+- nickname
+
+## Items
+
+- id (PK)
+- title
+- description
+- price
+- status
+- seller_id (FK → Users.id)
+- created_at
+
+## Trades
+
+- id (PK)
+- item_id (FK → Items.id)
+- seller_id (FK → Users.id)
+- buyer_id (FK → Users.id)
+- status
+- created_at
+
+## Relationships
+
+- User 1 : N Item
+- User 1 : N Trade (seller)
+- User 1 : N Trade (buyer)
+- Item 1 : 1 Trade
 
 ---
 
@@ -88,70 +125,53 @@ SELLING → RESERVED → SOLD
 
 ---
 
-# Database Design
-
-테이블 구성
-
-- Users
-- Items
-- Trades
-
-관계
-
-- User 1 : N Item
-- Item 1 : 1 Trade
-
-거래 상태 변경은 트랜잭션으로 처리하도록 구현했습니다.
-
----
-
 # API Example
 
-상품 목록 조회
+### 상품 목록 조회
 
-
+```http
 GET /api/items?page=0&size=10
-
-
 Response
-
-
 {
-"content": [],
-"pageable": {
-"pageNumber": 0,
-"pageSize": 10
-},
-"totalPages": 0,
-"totalElements": 0
+  "content": [],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10
+  },
+  "totalPages": 0,
+  "totalElements": 0
 }
+Deployment
+배포 환경
 
+AWS EC2 (Ubuntu 22.04)
 
----
+OpenJDK 17
 
-# Deployment
+MySQL
 
-서버는 AWS EC2 환경에 배포되었습니다.
+Nginx Reverse Proxy
 
-환경
+systemd 서비스 관리
 
-- Ubuntu 22.04
-- OpenJDK 17
-- Spring Boot Application
-- Nginx Reverse Proxy
-- systemd 서비스 관리
+배포 과정
 
-접속 주소
+EC2 인스턴스 생성
 
+OpenJDK 설치
 
+MySQL 설치
+
+Spring Boot 애플리케이션 빌드
+
+systemd 서비스 등록
+
+Nginx Reverse Proxy 설정
+
+API Endpoint Example
 http://3.39.248.28/api/items
-
-
----
-
-# Troubleshooting
-
-## Public Key Retrieval is not allowed
+Troubleshooting
+Public Key Retrieval is not allowed
 
 MySQL 8 연결 시 발생한 문제
 
@@ -159,13 +179,8 @@ MySQL 8 연결 시 발생한 문제
 
 JDBC URL 옵션 추가
 
-
 allowPublicKeyRetrieval=true
-
-
----
-
-## EC2 Gradle Build 멈춤 문제
+EC2 Gradle Build 멈춤 문제
 
 EC2 t3.micro 환경에서 메모리 부족으로 빌드가 멈춤
 
@@ -173,19 +188,21 @@ EC2 t3.micro 환경에서 메모리 부족으로 빌드가 멈춤
 
 Swap Memory 생성
 
-
 sudo fallocate -l 2G /swapfile
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
+What I Learned
+
+JWT 기반 사용자 인증 구현
+
+JPA를 활용한 도메인 중심 설계
+
+트랜잭션을 고려한 거래 상태 처리
+
+EC2 기반 서버 배포 및 운영
+
+Nginx Reverse Proxy 구성
 
 
 ---
-
-# What I Learned
-
-- JWT 기반 사용자 인증 구현
-- JPA를 활용한 도메인 중심 설계
-- 트랜잭션을 고려한 거래 상태 처리
-- EC2 기반 서버 배포 및 운영
-- Nginx Reverse Proxy 구성
