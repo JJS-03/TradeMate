@@ -141,8 +141,7 @@ Response
   "totalPages": 0,
   "totalElements": 0
 }
-
-# Deployment
+Deployment
 배포 환경
 
 AWS EC2 (Ubuntu 22.04)
@@ -171,10 +170,7 @@ Nginx Reverse Proxy 설정
 
 API Endpoint Example
 http://3.39.248.28/api/items
-
----
-
-# Troubleshooting
+Troubleshooting
 Public Key Retrieval is not allowed
 
 MySQL 8 연결 시 발생한 문제
@@ -196,10 +192,7 @@ sudo fallocate -l 2G /swapfile
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
-
----
-
-# What I Learned
+What I Learned
 
 JWT 기반 사용자 인증 구현
 
@@ -210,3 +203,5 @@ JPA를 활용한 도메인 중심 설계
 EC2 기반 서버 배포 및 운영
 
 Nginx Reverse Proxy 구성
+
+---
