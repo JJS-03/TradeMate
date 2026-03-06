@@ -127,7 +127,7 @@ SELLING → RESERVED → SOLD
 
 # API Example
 
-### 상품 목록 조회
+## 상품 목록 조회
 
 ```http
 GET /api/items?page=0&size=10
@@ -203,6 +203,3 @@ JPA를 활용한 도메인 중심 설계
 EC2 기반 서버 배포 및 운영
 
 Nginx Reverse Proxy 구성
-
-
----
