@@ -140,38 +140,44 @@ Response
   },
   "totalPages": 0,
   "totalElements": 0
-}
-Deployment
-배포 환경
+} 
 
-AWS EC2 (Ubuntu 22.04)
+```
 
-OpenJDK 17
+# Deployment
+## 배포 환경
 
-MySQL
+-AWS EC2 (Ubuntu 22.04)
 
-Nginx Reverse Proxy
+-OpenJDK 17
 
-systemd 서비스 관리
+-MySQL
 
-배포 과정
+-Nginx Reverse Proxy
 
-EC2 인스턴스 생성
+-systemd 서비스 관리
 
-OpenJDK 설치
+## 배포 과정
 
-MySQL 설치
+-EC2 인스턴스 생성
 
-Spring Boot 애플리케이션 빌드
+-OpenJDK 설치
 
-systemd 서비스 등록
+-MySQL 설치
 
-Nginx Reverse Proxy 설정
+-Spring Boot 애플리케이션 빌드
+
+-systemd 서비스 등록
+
+-Nginx Reverse Proxy 설정
 
 API Endpoint Example
 http://3.39.248.28/api/items
-Troubleshooting
-Public Key Retrieval is not allowed
+
+---
+
+# Troubleshooting
+## Public Key Retrieval is not allowed
 
 MySQL 8 연결 시 발생한 문제
 
@@ -180,7 +186,8 @@ MySQL 8 연결 시 발생한 문제
 JDBC URL 옵션 추가
 
 allowPublicKeyRetrieval=true
-EC2 Gradle Build 멈춤 문제
+
+## EC2 Gradle Build 멈춤 문제
 
 EC2 t3.micro 환경에서 메모리 부족으로 빌드가 멈춤
 
@@ -192,7 +199,10 @@ sudo fallocate -l 2G /swapfile
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
-What I Learned
+
+---
+
+# What I Learned
 
 JWT 기반 사용자 인증 구현
 
