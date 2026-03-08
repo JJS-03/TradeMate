@@ -211,6 +211,53 @@ sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
 
+# Project Structure
+
+```
+src/main/java/com/trademate
+
+├── auth
+│ └── JWT 인증 및 로그인 처리
+│
+├── common
+│ ├── dto
+│ └── exception
+│
+├── config
+│ └── Spring Security 및 애플리케이션 설정
+│
+├── domain
+│ ├── item
+│ │ └── Item Entity / Repository
+│ │
+│ ├── trade
+│ │ └── Trade Entity / Repository
+│ │
+│ └── user
+│ └── User Entity / Repository
+│
+├── item
+│ ├── controller
+│ ├── service
+│ └── dto
+│
+├── trade
+│ ├── controller
+│ ├── service
+│ └── dto
+│
+├── user
+│ ├── controller
+│ └── service
+│
+├── runner
+│ └── 초기 데이터 생성
+│
+└── TrademateApplication
+```
+
+도메인(Entity)과 비즈니스 로직(Service), API 계층(Controller)을 분리하여  
+유지보수성과 확장성을 고려한 구조로 설계했습니다.
 ---
 
 # What I Learned
