@@ -4,6 +4,7 @@ import com.trademate.trademate.domain.item.Item;
 import com.trademate.trademate.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -35,13 +36,9 @@ public class Trade {
     @Column(nullable = false)
     private TradeStatus status;
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 
     public void changeStatus(TradeStatus status) {
         this.status = status;

@@ -16,4 +16,7 @@ public class ItemCreateRequest {
 
     @Min(value = 0, message = "가격은 0 이상이어야 합니다.")
     private Integer price;
+
+    public ItemCreateRequest(String 맥북, String 맥북_팝니다, int i) {
+    }
 }
