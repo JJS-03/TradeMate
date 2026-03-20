@@ -5,6 +5,7 @@ import com.trademate.trademate.common.exception.UnauthorizedException;
 import com.trademate.trademate.trade.dto.TradeResponse;
 import com.trademate.trademate.trade.dto.TradeSummaryResponse;
 import com.trademate.trademate.trade.service.TradeService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Trade API", description = "거래 완료/취소 및 내 거래 내역 조회 API")
 @RequestMapping("/api/trades")
 @RequiredArgsConstructor
 public class TradeController {

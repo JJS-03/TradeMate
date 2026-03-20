@@ -7,12 +7,14 @@ import com.trademate.trademate.user.dto.SignUpRequest;
 import com.trademate.trademate.user.dto.SignUpResponse;
 import com.trademate.trademate.user.service.UserService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "User API", description = "회원가입 및 내 정보 조회 API")
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {

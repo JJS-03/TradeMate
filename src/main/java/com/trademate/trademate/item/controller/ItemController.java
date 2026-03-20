@@ -13,6 +13,7 @@ import com.trademate.trademate.item.service.ItemService;
 import com.trademate.trademate.trade.dto.TradeResponse;
 import com.trademate.trademate.trade.service.TradeService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "Item API", description = "상품 조회/등록/수정/삭제 및 구매 API")
 @RequestMapping("/api/items")
 @RequiredArgsConstructor
 public class ItemController {
